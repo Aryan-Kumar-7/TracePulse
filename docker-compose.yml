@@ -1,0 +1,79 @@
+services:
+  clickhouse:
+    image: clickhouse/clickhouse-server:24.3-alpine
+    container_name: tracepulse-clickhouse
+    restart: unless-stopped
+    environment:
+      CLICKHOUSE_DB: default
+      CLICKHOUSE_USER: default
+      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: 1
+    ports:
+      - '8123:8123' # HTTP API
+      - '9000:9000' # Native TCP client
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse
+      - ./docker/clickhouse/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+    healthcheck:
+      test: ['CMD-SHELL', 'wget --spider -q http://127.0.0.1:8123/ping || exit 1']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    networks:
+      - tracepulse-net
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: tracepulse-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: tracepulse
+      POSTGRES_PASSWORD: tracepulse_secret
+      POSTGRES_DB: tracepulse
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U tracepulse -d tracepulse']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    networks:
+      - tracepulse-net
+
+  redis:
+    image: redis:7-alpine
+    container_name: tracepulse-redis
+    restart: unless-stopped
+    command: ['redis-server', '--appendonly', 'yes']
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 3s
+    networks:
+      - tracepulse-net
+
+volumes:
+  clickhouse_data:
+    name: tracepulse_clickhouse_data
+  postgres_data:
+    name: tracepulse_postgres_data
+  redis_data:
+    name: tracepulse_redis_data
+
+networks:
+  tracepulse-net:
+    name: tracepulse-network
+    driver: bridge
