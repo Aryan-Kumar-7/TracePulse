@@ -4,6 +4,7 @@
   "private": true,
   "description": "TracePulse — Distributed Telemetry & AI Incident RCA Platform",
   "scripts": {
+    "dev": "pnpm -r --parallel run dev",
     "dev:api": "pnpm --filter @tracepulse/api dev",
     "dev:web": "pnpm --filter @tracepulse/web dev",
     "build": "pnpm -r run build",

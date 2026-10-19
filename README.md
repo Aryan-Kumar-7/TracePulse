@@ -168,3 +168,19 @@ curl -s "http://localhost:8123/?query=SELECT+service_name,+count()+as+total,+cou
 # 4. Inspect auto-detected incidents created in PostgreSQL
 curl -s http://localhost:4000/v1/incidents | jq
 ```
+
+### 9. Launch Full-Stack Telemetry Dashboard (Phase 4)
+```bash
+# Start both NestJS Gateway (port 4000) and Next.js 15 UI (port 3000) in parallel
+pnpm dev
+
+# Or start individually
+pnpm dev:api   # NestJS Fastify Ingestion Gateway
+pnpm dev:web   # Next.js 15 App Router Telemetry UI
+```
+
+Open your browser to:
+- **System Overview & Health:** [http://localhost:3000](http://localhost:3000)
+- **Incident Post-Mortem Center:** [http://localhost:3000/incidents](http://localhost:3000/incidents)
+- **Interactive Trace Explorer & Gantt Waterfall:** [http://localhost:3000/traces](http://localhost:3000/traces)
+
