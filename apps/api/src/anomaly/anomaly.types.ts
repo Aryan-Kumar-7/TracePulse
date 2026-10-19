@@ -1,12 +1,22 @@
 export interface ServiceMetrics {
   serviceName: string;
+  service_name?: string;
   totalSpans: number;
+  total_spans?: number;
   errorSpans: number;
+  error_spans?: number;
   errorRate: number; // percentage, e.g. 15.5 for 15.5%
+  error_rate?: number;
   p50LatencyMs: number;
+  p50_latency_ms?: number;
   p95LatencyMs: number;
+  p95_latency_ms?: number;
   p99LatencyMs: number;
+  p99_latency_ms?: number;
+  throughput?: number;
+  throughputRpm?: number;
   sampleTraceId?: string;
+  sample_trace_id?: string;
 }
 
 export interface AnomalyThresholds {

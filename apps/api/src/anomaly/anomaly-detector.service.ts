@@ -130,15 +130,33 @@ export class AnomalyDetectorService implements OnModuleInit, OnModuleDestroy {
             ? r.sample_error_trace_id
             : r.sample_trace_id;
 
+        const totalSpans = Number(r.total_spans) || 0;
+        const errorSpans = Number(r.error_spans) || 0;
+        const errorRate = Number(r.error_rate) || 0;
+        const p50LatencyMs = Number(r.p50_latency_ms) || 0;
+        const p95LatencyMs = Number(r.p95_latency_ms) || 0;
+        const p99LatencyMs = Number(r.p99_latency_ms) || 0;
+        const throughput = Math.round((totalSpans / windowMinutes) * 10) / 10;
+
         return {
           serviceName: r.service_name,
-          totalSpans: Number(r.total_spans) || 0,
-          errorSpans: Number(r.error_spans) || 0,
-          errorRate: Number(r.error_rate) || 0,
-          p50LatencyMs: Number(r.p50_latency_ms) || 0,
-          p95LatencyMs: Number(r.p95_latency_ms) || 0,
-          p99LatencyMs: Number(r.p99_latency_ms) || 0,
+          service_name: r.service_name,
+          totalSpans,
+          total_spans: totalSpans,
+          errorSpans,
+          error_spans: errorSpans,
+          errorRate,
+          error_rate: errorRate,
+          p50LatencyMs,
+          p50_latency_ms: p50LatencyMs,
+          p95LatencyMs,
+          p95_latency_ms: p95LatencyMs,
+          p99LatencyMs,
+          p99_latency_ms: p99LatencyMs,
+          throughput,
+          throughputRpm: throughput,
           sampleTraceId,
+          sample_trace_id: sampleTraceId,
         };
       });
     } catch (err: any) {

@@ -534,4 +534,54 @@ export class SpanTreeService {
 
     return lines.join('\n');
   }
+
+  /**
+   * Queries ClickHouse for a summary list of the most recent traces.
+   */
+  async getRecentTraces(limit = 20): Promise<Array<{
+    traceId: string;
+    rootService: string;
+    rootSpanName: string;
+    statusCode: string;
+    durationMs: number;
+    startTime: string;
+    spanCount: number;
+  }>> {
+    const safeLimit = Math.min(Math.max(limit, 1), 100);
+    const query = `
+      SELECT
+        trace_id,
+        any(service_name) AS root_service,
+        any(name) AS root_name,
+        anyIf(status_code, status_code = 'ERROR') AS error_status,
+        any(status_code) AS sample_status,
+        round(max(duration_ms), 2) AS max_duration_ms,
+        min(start_time) AS start_time,
+        count() AS span_count
+      FROM default.spans
+      GROUP BY trace_id
+      ORDER BY start_time DESC
+      LIMIT ${safeLimit}
+    `;
+
+    try {
+      const res = await this.clickhouseService.getClient().query({
+        query,
+        format: 'JSONEachRow',
+      });
+      const rows = (await res.json()) as any[];
+      return rows.map((r) => ({
+        traceId: r.trace_id,
+        rootService: r.root_service,
+        rootSpanName: r.root_name,
+        statusCode: r.error_status || r.sample_status || 'OK',
+        durationMs: Number(r.max_duration_ms) || 0,
+        startTime: r.start_time,
+        spanCount: Number(r.span_count) || 0,
+      }));
+    } catch (err: any) {
+      this.logger.error(`Failed to fetch recent traces: ${err?.message || err}`);
+      return [];
+    }
+  }
 }

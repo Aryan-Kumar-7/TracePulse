@@ -10,6 +10,15 @@ export class TracesController {
   ) {}
 
   /**
+   * Returns a list of recently ingested traces for quick exploration in UI.
+   */
+  @Get('recent')
+  async getRecentTraces(@Query('limit') limit?: string) {
+    const take = limit ? parseInt(limit, 10) : 20;
+    return this.spanTreeService.getRecentTraces(take);
+  }
+
+  /**
    * Returns reconstructed span tree and critical failure path for any trace.
    */
   @Get(':traceId/tree')
