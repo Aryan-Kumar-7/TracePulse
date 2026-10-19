@@ -19,11 +19,13 @@ class ApiClient {
   private async request<T>(path: string, options?: RequestInit): Promise<T> {
     const url = `${this.baseUrl}${path.startsWith('/') ? path : `/${path}`}`;
     try {
+      const headers: Record<string, string> = {
+        ...(options?.body !== undefined ? { 'Content-Type': 'application/json' } : {}),
+        ...(options?.headers as Record<string, string>),
+      };
+
       const res = await fetch(url, {
-        headers: {
-          'Content-Type': 'application/json',
-          ...options?.headers,
-        },
+        headers,
         ...options,
         // Disable aggressive caching for real-time telemetry
         cache: 'no-store',
@@ -109,6 +111,7 @@ class ApiClient {
     const query = traceId ? `?traceId=${encodeURIComponent(traceId)}` : '';
     return this.request<Incident>(`/incidents/${id}/diagnose${query}`, {
       method: 'POST',
+      body: JSON.stringify({}),
     });
   }
 

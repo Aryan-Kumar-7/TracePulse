@@ -118,24 +118,6 @@ export function Navbar({
               : pathname === item.href ||
                 (item.href !== '/' && pathname.startsWith(item.href));
 
-            if (onTabChange) {
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => onTabChange(item.id)}
-                  className={cn(
-                    'flex items-center gap-2 px-3.5 py-1.5 text-xs font-medium rounded-lg transition-all duration-150',
-                    isSelected
-                      ? 'bg-blue-600 text-white shadow-sm shadow-blue-500/20'
-                      : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/60',
-                  )}
-                >
-                  <Icon className="h-3.5 w-3.5" />
-                  {item.label}
-                </button>
-              );
-            }
-
             return (
               <Link
                 key={item.id}

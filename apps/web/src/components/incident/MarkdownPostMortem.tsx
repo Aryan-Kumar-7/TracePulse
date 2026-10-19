@@ -96,6 +96,7 @@ export function MarkdownPostMortem({ content }: MarkdownPostMortemProps) {
           li: ({ children }) => (
             <li className="leading-relaxed">{children}</li>
           ),
+          pre: ({ children }) => <>{children}</>,
           code: ({ inline, className, children, ...props }: any) => {
             if (inline) {
               return (

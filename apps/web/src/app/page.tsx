@@ -1,7 +1,7 @@
 'use client';
 
 import React, { Suspense, useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
   Activity,
   AlertTriangle,
@@ -33,6 +33,7 @@ import { TraceExplorer } from '@/components/trace/TraceExplorer';
 import { Button } from '@/components/ui/Button';
 
 function DashboardContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const initialTrace = searchParams?.get('traceId') || null;
   const initialTab = (searchParams?.get('tab') as any) || 'overview';
@@ -115,9 +116,7 @@ function DashboardContent() {
       : 0;
 
   const handleSelectTrace = (traceId: string) => {
-    setSelectedTraceId(traceId);
-    setActiveTab('traces');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    router.push(`/traces?id=${encodeURIComponent(traceId)}`);
   };
 
   const openIncidentsCount = incidents.filter(
@@ -128,8 +127,7 @@ function DashboardContent() {
     <div className="flex min-h-screen flex-col bg-[#090d16] text-gray-200">
       {/* Top Navbar */}
       <Navbar
-        activeTab={activeTab}
-        onTabChange={setActiveTab}
+        activeTab="overview"
         onRefresh={() => fetchData(true)}
         isRefreshing={isRefreshing}
       />
@@ -175,7 +173,7 @@ function DashboardContent() {
                 <Button
                   variant="secondary"
                   size="sm"
-                  onClick={() => setActiveTab('traces')}
+                  onClick={() => router.push('/traces')}
                   leftIcon={<Layers className="h-3.5 w-3.5 text-blue-400" />}
                 >
                   Trace Explorer
@@ -183,7 +181,7 @@ function DashboardContent() {
                 <Button
                   variant="primary"
                   size="sm"
-                  onClick={() => setActiveTab('incidents')}
+                  onClick={() => router.push('/incidents')}
                   leftIcon={<ShieldAlert className="h-3.5 w-3.5 text-rose-400" />}
                 >
                   Incident Center ({openIncidentsCount})
