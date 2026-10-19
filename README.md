@@ -153,3 +153,18 @@ docker exec -it tracepulse-redis redis-cli XRANGE tracepulse:stream:traces - + C
 ```bash
 pnpm --filter @tracepulse/api test
 ```
+
+### 8. Simulate Realistic Microservice Traffic & Chaos (Phase 2)
+```bash
+# 1. Generate normal healthy distributed traffic (40 spans/sec)
+pnpm simulate --duration 10 --rps 8
+
+# 2. Inject chaos (spiking 500 errors and >2,000ms database query latency)
+pnpm simulate:chaos --duration 10 --rps 8
+
+# 3. Verify batched ingestion in ClickHouse
+curl -s "http://localhost:8123/?query=SELECT+service_name,+count()+as+total,+countIf(status_code='ERROR')+as+errors,+round((errors/total)*100,1)+as+error_rate_pct,+round(quantile(0.99)(duration_ms),1)+as+p99_ms+FROM+default.spans+GROUP+BY+service_name"
+
+# 4. Inspect auto-detected incidents created in PostgreSQL
+curl -s http://localhost:4000/v1/incidents | jq
+```

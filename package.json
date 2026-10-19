@@ -8,11 +8,14 @@
     "dev:web": "pnpm --filter @tracepulse/web dev",
     "build": "pnpm -r run build",
     "test": "pnpm -r run test",
+    "simulate": "tsx scripts/simulate-traffic.ts",
+    "simulate:chaos": "tsx scripts/simulate-traffic.ts --chaos",
     "docker:up": "docker compose up -d",
     "docker:down": "docker compose down",
     "docker:logs": "docker compose logs -f"
   },
   "devDependencies": {
+    "tsx": "^4.23.15",
     "typescript": "^5.7.3"
   }
 }

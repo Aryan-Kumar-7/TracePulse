@@ -6,6 +6,8 @@ import { ClickHouseModule } from './clickhouse/clickhouse.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { IngestionModule } from './ingestion/ingestion.module';
 import { HealthModule } from './health/health.module';
+import { ConsumerModule } from './consumer/consumer.module';
+import { AnomalyModule } from './anomaly/anomaly.module';
 
 @Module({
   imports: [
@@ -19,6 +21,8 @@ import { HealthModule } from './health/health.module';
     PrismaModule,
     IngestionModule,
     HealthModule,
+    ConsumerModule,
+    AnomalyModule,
   ],
 })
 export class AppModule {}
