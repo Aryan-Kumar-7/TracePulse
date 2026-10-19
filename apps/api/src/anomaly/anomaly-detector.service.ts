@@ -14,6 +14,7 @@ import {
 } from './anomaly.types';
 import { evaluateServiceAnomaly } from './anomaly-evaluator';
 import { Incident } from '@prisma/client';
+import { RcaService } from '../rca/rca.service';
 
 export interface ClickHouseMetricsRow {
   service_name: string;
@@ -36,6 +37,7 @@ export class AnomalyDetectorService implements OnModuleInit, OnModuleDestroy {
   constructor(
     private readonly clickhouseService: ClickHouseService,
     private readonly prisma: PrismaService,
+    private readonly rcaService: RcaService,
   ) {}
 
   onModuleInit() {
@@ -251,6 +253,24 @@ export class AnomalyDetectorService implements OnModuleInit, OnModuleDestroy {
             updatedAt: new Date(),
           },
         });
+
+        // If the incident has not had an AI RCA post-mortem synthesized yet, trigger it now
+        if (
+          !existingIncident.rootCauseMarkdown ||
+          existingIncident.rootCauseMarkdown.includes('Auto-created by TracePulse')
+        ) {
+          this.rcaService
+            .diagnoseIncident(
+              existingIncident.id,
+              evaluation.metrics.sampleTraceId || existingIncident.traceId || undefined,
+            )
+            .catch((err) =>
+              this.logger.error(
+                `Automated RCA diagnosis failed for existing incident ${existingIncident.id}: ${err?.message || err}`,
+              ),
+            );
+        }
+
         return updated;
       }
 
@@ -283,6 +303,16 @@ ${evaluation.reasons.map((r) => `  - ${r}`).join('\n')}
       this.logger.warn(
         `🚨 [INCIDENT CREATED] ${created.id} for service "${evaluation.serviceName}": ${evaluation.summary}`,
       );
+
+      // Asynchronously trigger AI Root-Cause Analysis diagnosis without blocking the detection loop
+      this.rcaService
+        .diagnoseIncident(created.id, created.traceId || undefined)
+        .catch((err) =>
+          this.logger.error(
+            `Automated RCA diagnosis failed for incident ${created.id}: ${err?.message || err}`,
+          ),
+        );
+
       return created;
     } catch (err: any) {
       this.logger.error(

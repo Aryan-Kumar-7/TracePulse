@@ -8,6 +8,7 @@ import { IngestionModule } from './ingestion/ingestion.module';
 import { HealthModule } from './health/health.module';
 import { ConsumerModule } from './consumer/consumer.module';
 import { AnomalyModule } from './anomaly/anomaly.module';
+import { RcaModule } from './rca/rca.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { AnomalyModule } from './anomaly/anomaly.module';
     HealthModule,
     ConsumerModule,
     AnomalyModule,
+    RcaModule,
   ],
 })
 export class AppModule {}
