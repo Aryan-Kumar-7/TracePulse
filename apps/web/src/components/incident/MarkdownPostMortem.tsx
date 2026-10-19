@@ -81,34 +81,26 @@ export function MarkdownPostMortem({ content }: MarkdownPostMortemProps) {
             </h3>
           ),
           p: ({ children }) => (
-            <p className="text-gray-300 leading-relaxed my-2">{children}</p>
-          ),
-          ul: ({ children }) => (
-            <ul className="list-disc list-inside space-y-1.5 my-3 text-gray-300 marker:text-blue-400">
-              {children}
-            </ul>
-          ),
-          ol: ({ children }) => (
-            <ol className="list-decimal list-inside space-y-1.5 my-3 text-gray-300 marker:text-blue-400">
-              {children}
-            </ol>
-          ),
-          li: ({ children }) => (
-            <li className="leading-relaxed">{children}</li>
+            <div className="text-gray-300 leading-relaxed my-2">{children}</div>
           ),
           pre: ({ children }) => <>{children}</>,
-          code: ({ inline, className, children, ...props }: any) => {
-            if (inline) {
-              return (
-                <code
-                  className="rounded bg-gray-900/80 px-1.5 py-0.5 font-mono text-xs text-blue-300 border border-gray-800"
-                  {...props}
-                >
-                  {children}
-                </code>
-              );
+          code: ({ className, children, ...props }: any) => {
+            const isMultiLine = String(children).includes('\n');
+            const hasLang = Boolean(className && className.startsWith('language-'));
+            const isBlock = isMultiLine || hasLang;
+
+            if (isBlock) {
+              return <CodeBlock className={className}>{children}</CodeBlock>;
             }
-            return <CodeBlock className={className}>{children}</CodeBlock>;
+
+            return (
+              <code
+                className="rounded bg-gray-900/80 px-1.5 py-0.5 font-mono text-xs text-blue-300 border border-gray-800"
+                {...props}
+              >
+                {children}
+              </code>
+            );
           },
           blockquote: ({ children }) => (
             <blockquote className="border-l-4 border-amber-500 bg-amber-500/10 p-3 rounded-r-lg my-3 text-amber-200 text-xs">
